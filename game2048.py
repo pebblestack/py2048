@@ -3,6 +3,7 @@ import os
 import numpy as np
 import time
 import argparse
+import pygame
 
 def game_board(game_size):
     game = np.zeros((game_size,game_size), dtype = np.int)
@@ -158,128 +159,143 @@ def check_win(current_game):
 os.system("cls")
 
 try:
-    play_again = True
-    while play_again:
-        num_of_moves = 0
-        print("The Game Is Starting...")
-        print("Swipe in different directions using w,a,s or d keys or use u key to undo a move.")
-        parser = argparse.ArgumentParser(description='Input for game size and winning tile size')
-        parser.add_argument('-n', '--board_size', metavar='', help='Choose your game size')
-        parser.add_argument('-w', '--max_tile', help='Choose your winning tile size', metavar='')
-        args = parser.parse_args()
-
+    num_of_moves = 0
+    
+    parser = argparse.ArgumentParser(description='Input for game size and winning tile size')
+    parser.add_argument('-n', '--board_size', metavar='', help='Choose your game size')
+    parser.add_argument('-w', '--max_tile', help='Choose your winning tile size', metavar='')
+    parser.add_argument('-q', '--quiet', help='print quiet', action='store_true')
+    args = parser.parse_args()
+    try:
         if args.board_size.isnumeric():
             game_size = int(args.board_size)
             if game_size < 1:
                 game_size = 5
         else:
             game_size = 5
-        
+    except:
+        game_size = 5
+    try:
         if args.max_tile.isnumeric():
             win_tile = int(args.max_tile)
             if win_tile < 1:
                 win_tile = 2048
         else:
             win_tile = 2048
-        
-        os.system('cls')
-        start = time.time()
-
-        game = game_board(game_size)
-        play = True
-        game_over = False
-        you_win = False
-        game[random.randint(0, len(game)-1)][random.randint(0, len(game)-1)] = 2
-        while play:
-
-            play, game_over, you_win = check_win(game)
-            if game_over and not you_win:
-                play = False
-                show_game(game)
-                print('')
-                print("Total number of moves made: ", num_of_moves)
-                print(f"Total time taken is {int(time.time() - start)} seconds")
-                print("You Loose!")
-                start_over = input("Would you like to play again?(y/n)  ")
-                if start_over.lower() == 'y':
-                    os.system('cls')
-                    start = time.time()
-                    play_again = True
-                elif start_over.lower() == 'n':
-                    play_again = False
-                else:
-                    play_again = False
-            elif game_over and you_win:
-                play = False
-                show_game(game)
-                print('')
-                print("Total number of moves made: ", num_of_moves)
-                print(f"Total time taken is {int(time.time() - start)} seconds")
-                print("You Win!")
-                start_over = input("Would you like to play again?(y/n)  ")
-                if start_over.lower() == 'y':
-                    os.system('cls')
-                    start = time.time()
-                    play_again = True
-                elif start_over.lower() == 'n':
-                    play_again = False
-                else:
-                    play_again = False
-            
-            if play:
-                show_game(game)
-                
-                invalid_move = True
-                while invalid_move:
-                    move = input("")
-                    
-                    if move.lower() == 'w':
-                        num_of_moves += 1
-                        invalid_move = False
-                        game, store_game = swipe_up(game)
-                        os.system('cls')
-                        
-                    elif move.lower() == 's':
-                        num_of_moves += 1
-                        invalid_move = False
-                        game, store_game = swipe_down(game)
-                        os.system('cls')
-                        
-                    elif move.lower() == 'a':
-                        num_of_moves += 1
-                        invalid_move = False
-                        game, store_game = swipe_left(game)
-                        os.system('cls')
-                        
-                    elif move.lower() == 'd':
-                        num_of_moves += 1
-                        invalid_move = False
-                        game, store_game = swipe_right(game)
-                        os.system('cls')
-                    
-                    elif move.lower() == 'u':
-                        game = store_game
-                        invalid_move = False
-                        os.system('cls')
-                        
-                    else:
-                        print("Invalid move, try again!", end='    ')
-                        invalid_move = True
-
-                if move.lower() != 'u':
-                    get = True
-                    while get:
-                        rand_row = random.randint(0,len(game)-1)
-                        rand_col = random.randint(0,len(game)-1)
-                        num = game[rand_row][rand_col]
-                        if num == 0:
-                            game[rand_row][rand_col] = 2
-                            get = False
+    except:
+        win_tile = 2048
     
-    print("Game Over!")
+    os.system('cls')
+    print("The Game Is Starting...")
+    print("Swipe in different directions using w,a,s or d keys or use u key to undo a move.")
+    start = time.time()
+        
+    game = game_board(game_size)
+    play = True
+    game_over = False
+    you_win = False
+    game[random.randint(0, len(game)-1)][random.randint(0, len(game)-1)] = 2
+    while play:
+
+        play, game_over, you_win = check_win(game)
+        if game_over and not you_win:
+            play = False
+            show_game(game)
+            print('')
+            if not args.quiet:
+                print("Total number of moves made: ", num_of_moves)
+                print(f"Total time taken is {int(time.time() - start)} seconds")
+            print("Game Over, You Loose")
+                
+        elif game_over and you_win:
+            play = False
+            show_game(game)
+            print('')
+            if not args.quiet:
+                print("Total number of moves made: ", num_of_moves)
+                print(f"Total time taken is {int(time.time() - start)} seconds")
+            print("Congratutions, You Win")
+            
+        if play:
+            show_game(game)
+            pygame.init()
+            screen = pygame.display.set_mode((600, 600))
+            
+            running = True
+            while running:
+                for event in pygame.event.get():
+                    if event.type == pygame.KEYDOWN:
+                            
+                        if event.key == pygame.K_w:
+                            option = 1
+                            
+                        elif event.key == pygame.K_s:
+                            option = 2
+                            
+                        elif event.key == pygame.K_a:
+                            option = 3
+                            
+                        elif event.key == pygame.K_d:
+                            option = 4
+                        
+                        elif event.key == pygame.K_u:
+                            option = 5
+                            
+                        else:
+                            option = 0
+
+                    if event.type == pygame.KEYUP:
+                        running = False
+                        
+            if option == 1:
+                num_of_moves += 1
+                invalid_move = False
+                game, store_game = swipe_up(game)
+                os.system('cls')
+                
+            elif option == 2:
+                num_of_moves += 1
+                invalid_move = False
+                game, store_game = swipe_down(game)
+                os.system('cls')
+                
+            elif option == 3:
+                num_of_moves += 1
+                invalid_move = False
+                game, store_game = swipe_left(game)
+                os.system('cls')
+                
+            elif option == 4:
+                num_of_moves += 1
+                invalid_move = False
+                game, store_game = swipe_right(game)
+                os.system('cls')
+            
+            elif option == 5:
+                game = store_game
+                invalid_move = False
+                os.system('cls')
+                
+            elif option == 0:
+                print("Invalid move, try again!")
+
+            comparison = game == store_game
+            equal_arrays = comparison.all()    
+            if option != 5 and equal_arrays:
+                print("Warning!! Move in that direction not possible, try again!")
+                    
+            if option != 5 and not equal_arrays:
+                get = True
+                while get:
+                    rand_row = random.randint(0,len(game)-1)
+                    rand_col = random.randint(0,len(game)-1)
+                    num = game[rand_row][rand_col]
+                    if num == 0:
+                        game[rand_row][rand_col] = 2
+                        get = False
+    
     print("Byeeee")
 
-            
 except Exception as e:
     print("Something went wrong!", e)
     play = True
