@@ -3,7 +3,8 @@ import os
 import numpy as np
 import time
 import argparse
-import pygame
+import pynput
+from pynput.keyboard import Key, Listener
 
 def game_board(game_size):
     game = np.zeros((game_size,game_size), dtype = np.int)
@@ -17,7 +18,7 @@ def show_game(current_game):
     print('*****'*len(current_game), end='    ')
     print(f"Winning tile: {win_tile}", end='\n')
 
-def swipe_up(current_game):
+def swipe_up(current_game, store_game):
     store_game = current_game
     clean_board = game_board(len(current_game))
     for col in range(len(current_game)):
@@ -42,7 +43,7 @@ def swipe_up(current_game):
     
     return current_game, store_game
 
-def swipe_down(current_game):
+def swipe_down(current_game, store_game):
     store_game = current_game
     clean_board = game_board(len(current_game))
     for col in range(len(current_game)):
@@ -67,7 +68,7 @@ def swipe_down(current_game):
     
     return current_game, store_game
 
-def swipe_right(current_game):
+def swipe_right(current_game, store_game):
     store_game = current_game
     clean_board = game_board(len(current_game))
     for row in range(len(current_game)):
@@ -92,7 +93,7 @@ def swipe_right(current_game):
     
     return current_game, store_game
 
-def swipe_left(current_game):
+def swipe_left(current_game, store_game):
     store_game = current_game
     clean_board = game_board(len(current_game))
     for row in range(len(current_game)):
@@ -130,7 +131,7 @@ def check_win(current_game):
                 if current_game[row][col] == win_tile:
                     count2 +=1
         if count2 > 0:
-            return False, True, True
+            return True, True
         elif count2 == 0:
             count3 = 0
             for col in range(len(current_game)):
@@ -142,9 +143,9 @@ def check_win(current_game):
                     if current_game[row][col] == current_game[row][col+1]:
                         count3 +=1
             if count3 >0:
-                return True, False, False
+                return False, False
             elif count3 == 0:
-                return False, True, False
+                return True, False
     elif count1 >0:
         count2 = 0
         for col in range(len(current_game)):
@@ -152,9 +153,9 @@ def check_win(current_game):
                 if current_game[row][col] == win_tile:
                     count2 +=1
         if count2 >0:
-            return False, True, True
+            return True, True
         elif count2 == 0:
-            return True, False, False
+            return False, False
 
 os.system("cls")
 
@@ -189,102 +190,66 @@ try:
     print("The Game Is Starting...")
     print("Swipe in different directions using w,a,s or d keys or use u key to undo a move.")
     start = time.time()
-        
     game = game_board(game_size)
     play = True
     game_over = False
     you_win = False
     game[random.randint(0, len(game)-1)][random.randint(0, len(game)-1)] = 2
-    while play:
+    store_game = game
+    show_game(game)
+    
+    def on_press(key):
+        global num_of_moves, start, game, play, game_over, you_win, store_game
+        try:
+            move = key.char
+                    
 
-        play, game_over, you_win = check_win(game)
-        if game_over and not you_win:
-            play = False
-            show_game(game)
-            print('')
-            if not args.quiet:
-                print("Total number of moves made: ", num_of_moves)
-                print(f"Total time taken is {int(time.time() - start)} seconds")
-            print("Game Over, You Loose")
-                
-        elif game_over and you_win:
-            play = False
-            show_game(game)
-            print('')
-            if not args.quiet:
-                print("Total number of moves made: ", num_of_moves)
-                print(f"Total time taken is {int(time.time() - start)} seconds")
-            print("Congratutions, You Win")
-            
-        if play:
-            show_game(game)
-            pygame.init()
-            screen = pygame.display.set_mode((600, 600))
-            
-            running = True
-            while running:
-                for event in pygame.event.get():
-                    if event.type == pygame.KEYDOWN:
-                            
-                        if event.key == pygame.K_w:
-                            option = 1
-                            
-                        elif event.key == pygame.K_s:
-                            option = 2
-                            
-                        elif event.key == pygame.K_a:
-                            option = 3
-                            
-                        elif event.key == pygame.K_d:
-                            option = 4
+            os.system('cls')
+                    
                         
-                        elif event.key == pygame.K_u:
-                            option = 5
-                            
-                        else:
-                            option = 0
-
-                    if event.type == pygame.KEYUP:
-                        running = False
-                        
-            if option == 1:
+            if move == 'w':
                 num_of_moves += 1
                 invalid_move = False
-                game, store_game = swipe_up(game)
-                os.system('cls')
+                game, store_game = swipe_up(game, store_game)
                 
-            elif option == 2:
-                num_of_moves += 1
-                invalid_move = False
-                game, store_game = swipe_down(game)
-                os.system('cls')
                 
-            elif option == 3:
+            elif move == 's':
                 num_of_moves += 1
                 invalid_move = False
-                game, store_game = swipe_left(game)
-                os.system('cls')
+                game, store_game = swipe_down(game, store_game)
                 
-            elif option == 4:
+                
+            elif move == 'a':
                 num_of_moves += 1
                 invalid_move = False
-                game, store_game = swipe_right(game)
-                os.system('cls')
+                game, store_game = swipe_left(game, store_game)
+                
+                
+            elif move == 'd':
+                num_of_moves += 1
+                invalid_move = False
+                game, store_game = swipe_right(game, store_game)
+                
             
-            elif option == 5:
+            elif move == 'u':
                 game = store_game
                 invalid_move = False
-                os.system('cls')
                 
-            elif option == 0:
+                
+            else:
                 print("Invalid move, try again!")
+                invalid_move = True
 
             comparison = game == store_game
-            equal_arrays = comparison.all()    
-            if option != 5 and equal_arrays:
+            equal_arrays = comparison.all() 
+
+            if invalid_move:
+                game = store_game
+
+            if equal_arrays and not invalid_move and move != 'u':
                 print("Warning!! Move in that direction not possible, try again!")
-                    
-            if option != 5 and not equal_arrays:
+
+            if move != 'u' and not invalid_move and not equal_arrays:
                 get = True
                 while get:
                     rand_row = random.randint(0,len(game)-1)
@@ -293,9 +258,37 @@ try:
                     if num == 0:
                         game[rand_row][rand_col] = 2
                         get = False
+
+        except AttributeError:
+            print('')
+
+    def on_release(key):
+        if key == Key.esc:
+            return False
+        show_game(game)
+
+        game_over, you_win = check_win(game)
+        if game_over and not you_win:
+            print('')
+            if not args.quiet:
+                print("Total number of moves made: ", num_of_moves)
+                print(f"Total time taken is {int(time.time() - start)} seconds")
+            print("You Loose!")
+        elif game_over and you_win:
+            print('')
+            if not args.quiet:
+                print("Total number of moves made: ", num_of_moves)
+                print(f"Total time taken is {int(time.time() - start)} seconds")
+            print("You Win!")
+        
+
+    with Listener(on_press=on_press, on_release=on_release) as listener:
+        listener.join()    
     
+    print("Game Over!")
     print("Byeeee")
 
+            
 except Exception as e:
     print("Something went wrong!", e)
     play = True
