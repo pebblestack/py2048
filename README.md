@@ -12,11 +12,11 @@ An additional **'quiet'** feature is also there which will decide the format of 
 
 - If enabled only the win or loose will be printed as result.
 
-![alt text](images/image1.jpg)    ![](images/image2.jpg)
+![alt text](image1.jpg)    ![](image2.jpg)
 
 - If not enabled then additional information like **total time taken** for game and **total number of moves** will also be printed.
 
-![alt text](images/image3.jpg)    ![](images/image4.jpg)
+![alt text](image3.jpg)    ![](image4.jpg)
 
 Note: If not inputed, default values for `game_size` and `max_tile` are 5 and 2048 respectively.
 
