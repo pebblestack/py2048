@@ -15,10 +15,14 @@ def game_board(game_size):
 
 def show_game(current_game):
     for row in current_game:
+        print('\t', end = '  ')
         for item in row:
-            print(item, end='    ')
+            if item != 0:
+                print(item, end='    ')
+            else:
+                print('-', end='    ')
         print("\n")
-    print('*****'*len(current_game), end='    ')
+    print('\t', '*****'*len(current_game), end='    ')
     print(f"Winning tile: {win_tile}", end='\n')
 
 def swipe_up(current_game, store_game):
@@ -233,7 +237,6 @@ try:
                     num_of_moves += 1
                     invalid_move = False
                     game, store_game = swipe_up(game, store_game)
-                    os.system('cls')
                     
                 elif move.lower() == 's':
                     num_of_moves += 1
