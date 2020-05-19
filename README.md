@@ -23,10 +23,10 @@ Note: If not inputed, default values for `game_size` and `max_tile` are 5 and 20
 ### Moves :-
 *WASD* have usual meaning. If *u* key is pressed undo for only one move can be done. 
 
-Note: For quitting game at any point the *esc* key can be pressed.
+Note: For quitting game at any point the *z* key can be pressed.
 
 ##### Note:
-- In order for the progrram to run modules like `numpy`, `argparse`, `pynput`, `time` should be installed.
+- In order for the progrram to run modules like `numpy`, `argparse`, `pynput`, `time`, `msvcrt` should be installed.
 - The progrram runs perfectly in *windows* but I haven't tested it in *linux*.
 
 
